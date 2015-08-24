@@ -5,9 +5,9 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -70,24 +70,22 @@ public class PopupButton extends Button implements PopupWindow.OnDismissListener
         paddingBottom = this.getPaddingBottom();
         setNormal();
 
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        screenWidth = wm.getDefaultDisplay().getWidth();
-        screenHeight = wm.getDefaultDisplay().getHeight();
-
-
+        screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+        screenHeight = context.getResources().getDisplayMetrics().heightPixels;
     }
 
     /**
      * 隐藏弹出框
      */
-    public void hidePopup(){
-        if(popupWindow != null && popupWindow.isShowing()) {
+    public void hidePopup() {
+        if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
         }
     }
 
     /**
      * 设置自定义接口
+     *
      * @param listener
      */
     public void setListener(PopupButtonListener listener) {
@@ -96,19 +94,20 @@ public class PopupButton extends Button implements PopupWindow.OnDismissListener
 
     /**
      * 设置popupwindow的view
+     *
      * @param view
      */
     public void setPopupView(final View view) {
         this.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(popupWindow == null) {
+                if (popupWindow == null) {
                     LinearLayout layout = new LinearLayout(context);
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) (screenHeight * 0.6));
                     view.setLayoutParams(params);
                     layout.addView(view);
                     layout.setBackgroundColor(Color.argb(60, 0, 0, 0));
-                    popupWindow = new PopupWindow(layout,screenWidth,screenHeight);
+                    popupWindow = new PopupWindow(layout, screenWidth, screenHeight);
                     popupWindow.setFocusable(true);
                     popupWindow.setBackgroundDrawable(new BitmapDrawable());
                     popupWindow.setOutsideTouchable(true);
@@ -120,7 +119,7 @@ public class PopupButton extends Button implements PopupWindow.OnDismissListener
                         }
                     });
                 }
-                if(listener != null) {
+                if (listener != null) {
                     listener.onShow();
                 }
                 setPress();
@@ -135,10 +134,15 @@ public class PopupButton extends Button implements PopupWindow.OnDismissListener
     private void setPress() {
         if (pressBg != -1) {
             this.setBackgroundResource(pressBg);
-            this.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+            this.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }
         if (pressIcon != -1) {
-            Drawable drawable = getResources().getDrawable(pressIcon);
+            Drawable drawable;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                drawable = getResources().getDrawable(pressIcon, null);
+            } else {
+                drawable = getResources().getDrawable(pressIcon);
+            }
             /// 这一步必须要做,否则不会显示.
             drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
             this.setCompoundDrawables(null, null, drawable, null);
@@ -151,10 +155,15 @@ public class PopupButton extends Button implements PopupWindow.OnDismissListener
     private void setNormal() {
         if (normalBg != -1) {
             this.setBackgroundResource(normalBg);
-            this.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
+            this.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }
         if (normalIcon != -1) {
-            Drawable drawable = getResources().getDrawable(normalIcon);
+            Drawable drawable;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                drawable = getResources().getDrawable(normalIcon, null);
+            } else {
+                drawable = getResources().getDrawable(normalIcon);
+            }
             /// 这一步必须要做,否则不会显示.
             drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
             this.setCompoundDrawables(null, null, drawable, null);
@@ -164,7 +173,7 @@ public class PopupButton extends Button implements PopupWindow.OnDismissListener
     @Override
     public void onDismiss() {
         setNormal();
-        if(listener != null) {
+        if (listener != null) {
             listener.onHide();
         }
     }
